@@ -1,70 +1,68 @@
-# Getting Started with Create React App
+# Valintalistan toteutus React Hooksien avulla
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Tässä mallikoodissa on esimerkki valintalistasta, josta voidaan valita valinta päälle tai pois. Valitut alkiot tallentuvat taulukkoon. Koodissa hyödynnetään useForm-hooksiin lisättyä handleListChange-toiminnallisuutta, jota kutsutaan lista-alkion arvolla.
 
-## Available Scripts
+Määrittele ensin taulukko, joka sisältää listalle tulevat alkiot.
 
-In the project directory, you can run:
+```
+const urheilut = ["juoksu", "kävely", "ryömintä", "räpyttely", "snorklaaminen"];
+```
 
-### `npm start`
+Määrittele submit-toiminnallisuuden käsittelijä. Tässä esimerkissä tulostetaan lomakkeen tiedot konsolille.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+  const submit = () => {
+    console.log(values);
+  }
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Ota useForm-hooks käyttöön. Huomaa, että urheilu-avaimen arvoksi on määritelty taulukko. Taulukkomäärittely on pakollinen, jotta listan valinta toimii.
 
-### `npm test`
+```
+const { values, handleSubmit, handleChange, handleListChange } = useForm(submit, {teksti: "", urheilu: []}, false);
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Jos haluat, että listassa on tietyt valinnat valittuna lähtökohtaisesti, niin laita niiden 
+arvot taulukon alkioiksi.
 
-### `npm run build`
+```
+const { values, handleSubmit, handleChange, handleListChange } = useForm(submit, {teksti: "", urheilu: [urheilut[1],urheilut[3]]}, false);
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Tämän jälkeen voit luoda valinnat urheilut-taulukosta map-funktion avulla. Tässä esimerkissä input-elementti on kääritty div-elementin sisälle, jotta valintalaatikon perään saa tulostettua valinnan arvon. Huomaa, että name-ominaisuuden arvon tulee täsmätä lomakkeelle tallennetun taulukon nimeä. Samoin defaultChecked-arvon määrittely kannattaa tehdä huolella.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+  const valintalista = urheilut.map(item =>     
+    <div key={item}>
+      <input type="checkbox" 
+             name="urheilu" 
+             defaultChecked={values.urheilu.includes(item)} 
+             onChange={(event) => handleListChange(event, item)}               
+      /> {item}
+    </div>
+  );
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Edellä muodostettu valintalista sijoitetaan return-lauseessa normaalilla tavalla. 
 
-### `npm run eject`
+```
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <div className="lista">
+          { valintalista }
+        </div>
+        <input type="submit" value="lähetä"/>
+      </form>                
+    </div>
+  );
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Edellä olevassa esimerkissä valintalista on kääritty lista-nimisen div-luokan sisälle, jotta listan arvot saa helpommin jaettua CSS:n grid-ominaisuuden avulla.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+.lista {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+```
